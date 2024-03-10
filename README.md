@@ -39,7 +39,9 @@ The output `.mc` file will have the following format:
 Example:
 
 0x0 0x003100B3
+
 0x4 0x00A37293
+
 0x8 <termination code to signify the end of the text segment and, in turn, the end of the assembly program>
 
 ## Addressing Scheme
