@@ -7,6 +7,7 @@
 #include <string>
 #include <iomanip>
 #include <bitset>
+#include <regex>
 using namespace std;
 
 unordered_map<string, string> register_map = {
@@ -195,6 +196,17 @@ string intToHex(int num, int bytes) {
     return ss.str();
 }
 
+bool hasQuotes(const stringstream& ss) {
+    // Read the entire stringstream into a string
+    string str = ss.str();
+
+    // Check if opening and closing quotes are present
+    size_t firstQuote = str.find('"');
+    size_t lastQuote = str.rfind('"');
+    
+    return firstQuote != string::npos && lastQuote != string::npos && firstQuote != lastQuote;
+}
+
 vector<string> dataSeg(const string& filePath) {
     vector<string> data;
     ifstream file(filePath);
@@ -224,13 +236,22 @@ vector<string> dataSeg(const string& filePath) {
             stringstream ss(line);
             string label;
             ss >> label;
-            
-            if (label.back() == ':') {
+            vector<string> dataTokens = split(line);
+            if (label.back() == ':' ) {
                 ss >> label; // Skip the label
             }
-        
+            else if(label.find(":")==string::npos){
+                ss>>label;
+                if(label==":"){
+                    ss>>label;
+                }
+            }
             if (label == ".asciiz" || label.find(".asciiz")!=string::npos ) {
                 string asciiString;
+                if(!hasQuotes(ss)){
+                    cout<<"ERROR in data segment"<<endl;
+                    continue;
+                }
                 getline(ss, asciiString, '"');
                 getline(ss, asciiString, '"');
                 string hexString;
@@ -249,7 +270,7 @@ vector<string> dataSeg(const string& filePath) {
                 }
                 data.push_back("00");
             }
-            else {
+            else if (label == ".byte" || label.find(".byte")!=string::npos){
                 string dataValue;
                 while (ss >> dataValue) {
                     vector<string> parsedValues = parseInputString(dataValue);
@@ -257,29 +278,64 @@ vector<string> dataSeg(const string& filePath) {
                         if (!val.empty() && (isdigit(val[0]) || val[0] == '+' || val[0] == '-')) {
                             int intValue = stoi(val);
                             string hexStream;
-                            if (label == ".byte" || label.find(".byte")!=string::npos) {
-                                hexStream=intToHex(intValue,1);
-                                if(hexStream.length()>2){
-                                    hexStream=hexStream.substr(hexStream.length()-2,2);
-                                }
-                            } else if (label == ".half" || label.find(".half")!=string::npos) {
-                                hexStream=intToHex(intValue,2);
-                                if(hexStream.length()>4){
-                                    hexStream=hexStream.substr(hexStream.length()-4,4);
-                                }
-                            } else if (label == ".word" || label.find(".word")!=string::npos) {
-                                hexStream=intToHex(intValue,4);
-                            } else if (label == ".dword" || label.find(".dword")!=string::npos) {
-                                hexStream=intToHex(intValue,8);
-                            } else {
-                                cerr << "Error: Unsupported label." << endl;
-                                return data;
+                            hexStream=intToHex(intValue,1);
+                            if(hexStream.length()>2){
+                                hexStream=hexStream.substr(hexStream.length()-2,2);
                             }
                             data.push_back(hexStream);
                         }
                     }
                 }
             }
+            else if (label == ".half" || label.find(".half")!=string::npos){
+                string dataValue;
+                while (ss >> dataValue) {
+                    vector<string> parsedValues = parseInputString(dataValue);
+                    for (const string& val : parsedValues) {
+                        if (!val.empty() && (isdigit(val[0]) || val[0] == '+' || val[0] == '-')) {
+                            int intValue = stoi(val);
+                            string hexStream;
+                            hexStream=intToHex(intValue,2);
+                            if(hexStream.length()>4){
+                                hexStream=hexStream.substr(hexStream.length()-4,4);
+                            }
+                            data.push_back(hexStream);
+                        }
+                    }
+                }
+            }
+            else if (label == ".word" || label.find(".word")!=string::npos){
+                string dataValue;
+                while (ss >> dataValue) {
+                    vector<string> parsedValues = parseInputString(dataValue);
+                    for (const string& val : parsedValues) {
+                        if (!val.empty() && (isdigit(val[0]) || val[0] == '+' || val[0] == '-')) {
+                            int intValue = stoi(val);
+                            string hexStream;
+                            hexStream=intToHex(intValue,4);
+                            data.push_back(hexStream);
+                        }
+                    }
+                }
+            }
+            else if (label == ".dword" || label.find(".dword")!=string::npos){
+                string dataValue;
+                while (ss >> dataValue) {
+                    vector<string> parsedValues = parseInputString(dataValue);
+                    for (const string& val : parsedValues) {
+                        if (!val.empty() && (isdigit(val[0]) || val[0] == '+' || val[0] == '-')) {
+                            int intValue = stoi(val);
+                            string hexStream;
+                            hexStream=intToHex(intValue,8);
+                            data.push_back(hexStream);
+                        }
+                    }
+                }
+            }
+            else{
+                cout<<"ERROR in data segment"<<endl;
+            }
+    
         }
     }
     file.close();
@@ -356,6 +412,7 @@ int main() {
     string line;
     int address = 0;
     bool gettext = true;
+    //handleDataErrors(input_file);
     if (findRepeatedLabels(input_file)){
         cout<<"ERROR!! Label is repeated"<<endl;
     }
@@ -460,7 +517,7 @@ int main() {
                 if(register_valmap[tokens[1]]==register_valmap[tokens[2]]){
                     offset=4*processFileUntilLabel("input.asm",tokens[3])-address;
                 }
-                else if(rs1=="" || rs2==""){
+                if(rs1=="" || rs2==""){
                     cout<<"ERROR in instruction "<<lineNumb<<endl;
                 }
                 else{
