@@ -172,7 +172,7 @@ string intTo20BitBinaryString(int num) {
 
 string intToHex(int value) {
     stringstream stream;
-    stream << hex << value; // Convert integer to hexadecimal string
+    stream << uppercase << hex << value; // Convert integer to hexadecimal string
     return stream.str(); // Return the hexadecimal string
 }
 
@@ -189,9 +189,9 @@ vector<string> parseInputString(const string& input) {
 string intToHex(int num, int bytes) {
     stringstream ss;
     if(num<0){
-    ss << setfill('f') << setw(bytes * 2) << hex << (unsigned int)num;}
+    ss << uppercase << setfill('F') << setw(bytes * 2) << hex << (unsigned int)num;}
     else{
-       ss << setfill('0') << setw(bytes * 2) << hex << (unsigned int)num; 
+       ss << uppercase << setfill('0') << setw(bytes * 2) << hex << (unsigned int)num; 
     }
     return ss.str();
 }
@@ -573,7 +573,7 @@ int main() {
 
     unsigned int data_address = 0x10000000; // Starting address
     for (size_t i = 0; i < datas.length(); i += 8) {
-        outfile << "0x" << hex << data_address << " " << "0x" << reverseString(datas.substr(i,8)) << endl;
+        outfile << "0x" << uppercase << hex << data_address << " " << "0x" << reverseString(datas.substr(i,8)) << endl;
         data_address += 4; // Increment address by 4 for each word
     }
     outfile.close();
