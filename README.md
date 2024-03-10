@@ -1,5 +1,4 @@
 # CS204-Mini_Project
-# RISC-V Assembler
 
 This RISC-V assembler program takes RISC-V assembly code as input in a `.asm` file and generates machine code as output in a `.mc` file.
 
