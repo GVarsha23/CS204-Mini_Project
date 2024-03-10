@@ -1,32 +1,13 @@
 # CS204-Mini_Project
 
-This RISC-V assembler program takes RISC-V assembly code as input in a `.asm` file and generates machine code as output in a `.mc` file.
-
-## Usage
-
-1. Ensure you have a compatible C/C++/Java compiler installed on your system.
-2. Compile the assembler program source code using the provided Makefile or manually compile it using the appropriate compiler command.
-3. Execute the compiled binary with the input `.asm` file as an argument.
-
-### Compilation:
-
-make
-
-Or, if you prefer manual compilation:
-
-gcc -o assembler assembler.c
-
-### Execution:
-
-./assembler input.asm
-
-Replace `input.asm` with the path to your RISC-V assembly code file.
+This RISC-V assembler program takes RISC-V assembly code as input in a `.asm` file and generates machine code as output in a `.mc` file.This code is in C++.
 
 ## Input Format
 
-The input `.asm` file should contain one RISC-V assembly instruction per line. Here's an example:
+The input `.asm` file should contain one RISC-V assembly instruction per line.provided the inputFile <input.asm> Here's an example:
 
 add x1, x2, x3
+
 andi x5, x6, 10
 
 ## Output Format
@@ -41,7 +22,9 @@ Example:
 
 0x4 0x00A37293
 
-0x8 <termination code to signify the end of the text segment and, in turn, the end of the assembly program>
+Data Segment looks like 
+
+0x100000000 0x10
 
 ## Addressing Scheme
 
@@ -75,9 +58,9 @@ Example:
 - `.text`: Indicates the start of the text segment.
 - `.data`: Indicates the start of the data segment.
 - `.byte`, `.half`, `.word`, `.dword`: Directives to allocate memory and initialize it with byte, half, word, or double-word values.
-- `.asciz`: Directive to allocate memory and initialize it with a null-terminated ASCII string.
+- `.asciiz`: Directive to allocate memory and initialize it with a null-terminated ASCII string.
 
 ## Notes
 
-- Pseudo-instructions support is not compulsory.
+- Pseudo-instructions are not supported.
 - Floating-point operations are not supported.
